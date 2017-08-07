@@ -63,15 +63,16 @@ void * funcion_hilo(void *arg){
 		char linea[tam_lineas[n]];
 		fgets(linea,MAX,fp);
 		
-		palabra = strtok_r(linea, ",.!?:;",&saveptr);
+		palabra = strtok_r(linea, ",.!?:; ",&saveptr);
 		
 		while(palabra != NULL){
 			int o;
 			
-			printf("%s\n",palabra);
+			printf("%s",palabra);
 			for(o=0; o<cant_palabras;o++){
-
-				if (strcmp(palabra, palabras[o]) == 0){
+				char * comp = palabras[o];
+				printf("%s\n",comp);
+				if (strcmp(palabra, comp) == 0){
 					
 					pthread_mutex_lock(&mutex);
 					num_palabras[o] += 1;
