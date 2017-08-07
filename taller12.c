@@ -62,16 +62,21 @@ void * funcion_hilo(void *arg){
 		
 		char linea[tam_lineas[n]];
 		fgets(linea,MAX,fp);
+
+		char *newline = strchr( linea, '\n' );
+		if ( newline )
+			*newline = 0;	
 		
 		palabra = strtok_r(linea, ",.!?:; ",&saveptr);
 		
+
 		while(palabra != NULL){
 			int o;
 			
-			printf("%s",palabra);
+			
 			for(o=0; o<cant_palabras;o++){
 				char * comp = palabras[o];
-				printf("%s\n",comp);
+				
 				if (strcmp(palabra, comp) == 0){
 					
 					pthread_mutex_lock(&mutex);
@@ -136,6 +141,29 @@ int main (int argc, char *argv[]){
 				}
 		}
 	}
+
+	else{
+		for (j=0;j<num_hilos;j++){  
+			estructura *s_hilo = malloc(sizeof(estructura));
+			s_hilo -> ruta = ruta;
+			s_hilo -> inicio=v;
+			for(int u = 0; u<v; u++){
+					s_hilo -> bytes += tam_lineas[u];
+				}
+			v += razon;
+			if(v>num_lineas){
+				s_hilo -> fin=num_lineas-1;
+			}else{
+				s_hilo -> fin=v; 
+			}
+			v += 1;
+			int status=pthread_create(&hilos[j],NULL,funcion_hilo,(void*)s_hilo);
+			if(status<0){
+				fprintf(stderr,"Error al crear el hilo");
+			}
+		
+		}
+}
 
 	
 	for (h=0;h<num_hilos;h++){
