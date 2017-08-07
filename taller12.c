@@ -2,10 +2,11 @@
 #include <pthread.h>
 #include <string.h>
 #include <stdlib.h>
-
+#include <unistd.h>
 #define MAX 1000000
 
 int cant_palabras;
+int running_threads = 0;
 int num_palabras[100];
 char *palabras[100];
 int tam_lineas[MAX];
@@ -91,6 +92,7 @@ void * funcion_hilo(void *arg){
 	}
 	
 	fclose(fp);
+	running_threads--;
 	return (void *)0;
 
 }
@@ -125,20 +127,21 @@ int main (int argc, char *argv[]){
 	v=0;
 	if (num_lineas % num_hilos == 0){
 		for (j=0;j<num_hilos;j++){
-				estructura *s_hilo = malloc(sizeof(estructura));
-				s_hilo -> ruta = ruta;
-				s_hilo -> inicio=v;
-				for(int u = 0; u<v; u++){
-					s_hilo -> bytes += tam_lineas[u];
-				}
-				v += razon;
-				s_hilo -> fin=v-1; 
-				
+			estructura *s_hilo = malloc(sizeof(estructura));
+			s_hilo -> ruta = ruta;
+			s_hilo -> inicio=v;
+			for(int u = 0; u<v; u++){
+				s_hilo -> bytes += tam_lineas[u];
+			}
+			v += razon;
+			s_hilo -> fin=v-1; 
 			
-				int status = pthread_create(&hilos[j],NULL,funcion_hilo,(void*)s_hilo);
-				if(status<0){
-					fprintf(stderr,"Error al crear el hilo");
-				}
+			running_threads++;
+			int status = pthread_create(&hilos[j],NULL,funcion_hilo,(void*)s_hilo);
+			
+			if(status<0){
+				fprintf(stderr,"Error al crear el hilo");
+			}
 		}
 	}
 
@@ -157,6 +160,7 @@ int main (int argc, char *argv[]){
 				s_hilo -> fin=v; 
 			}
 			v += 1;
+			running_threads++;
 			int status=pthread_create(&hilos[j],NULL,funcion_hilo,(void*)s_hilo);
 			if(status<0){
 				fprintf(stderr,"Error al crear el hilo");
@@ -164,7 +168,14 @@ int main (int argc, char *argv[]){
 		
 		}
 }
-
+	while(running_threads>0){
+		sleep(1);
+		for(int k=0; k<cant_palabras; k++){
+			printf("%s: %d\t", palabras[k], num_palabras[k]);
+		}
+		printf("\n");
+		
+	}
 	
 	for (h=0;h<num_hilos;h++){
 		
