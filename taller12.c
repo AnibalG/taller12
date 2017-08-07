@@ -55,18 +55,22 @@ void * funcion_hilo(void *arg){
 	
 	
 	int n;
-	
+	pthread_mutex_lock(&mutex);
 	fseek(fp, argumentos -> bytes, SEEK_SET);
-	
-	for(n = argumentos ->inicio; n<=argumentos ->fin;n++){
+	pthread_mutex_unlock(&mutex);
+	for(n = argumentos ->inicio; n<=(argumentos ->fin);n++){
+		
 		char linea[tam_lineas[n]];
 		fgets(linea,MAX,fp);
-		printf("%s\n",linea);
-		strtok_r(linea, ",.!?:;",&saveptr);
 		
-		while((palabra = strtok_r(NULL, " ,.!?:;",&saveptr) )!= NULL){
+		palabra = strtok_r(linea, ",.!?:;",&saveptr);
+		
+		while(palabra != NULL){
 			int o;
+			
+			printf("%s\n",palabra);
 			for(o=0; o<cant_palabras;o++){
+
 				if (strcmp(palabra, palabras[o]) == 0){
 					
 					pthread_mutex_lock(&mutex);
@@ -74,9 +78,12 @@ void * funcion_hilo(void *arg){
 					pthread_mutex_unlock(&mutex);
 				}
 			}
+			palabra = strtok_r(NULL, " ,.!?:;",&saveptr);
+			
 		}
 		
 	}
+	
 	fclose(fp);
 	return (void *)0;
 
@@ -115,7 +122,7 @@ int main (int argc, char *argv[]){
 				estructura *s_hilo = malloc(sizeof(estructura));
 				s_hilo -> ruta = ruta;
 				s_hilo -> inicio=v;
-				for(int u = 0; u<v; v++){
+				for(int u = 0; u<v; u++){
 					s_hilo -> bytes += tam_lineas[u];
 				}
 				v += razon;
