@@ -1,5 +1,5 @@
-taller12: taller12.c
-	gcc -Wall -pthread taller12.c -o taller12
+Taller12: Taller12.c
+	gcc -Wall -pthread Taller12.c -o Taller12
 
 clean:
-	rm -rf taller12
+	rm -rf Taller12
